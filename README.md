@@ -2,7 +2,7 @@
 
 A small, read-only React dashboard that compares New York City weather data with Kalshi high-temperature contracts.
 
-It starts with Live mode that reads public NWS and Kalshi endpoints. It cannot log in, place an order, or move money.
+The dashboard uses live public data from NWS, NOAA NBM, and Kalshi. It needs an internet connection, but it does not need trading credentials. It cannot log in, place an order, or move money.
 
 ## What you are looking at
 
@@ -50,6 +50,8 @@ npm run dev
 ```
 
 Open `http://localhost:5173`.
+
+The first load can take longer because the API must download the current NOAA NBM bulletin. If an outside provider is unavailable, the dashboard shows a retry button instead of invented data.
 
 ## Useful commands
 

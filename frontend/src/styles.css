@@ -67,8 +67,6 @@ button:focus-visible {
 
 .brand-block,
 .topbar-actions,
-.mode-switch,
-.mode-button,
 .refresh-button,
 .action-badge,
 .model-note,
@@ -124,46 +122,20 @@ button:focus-visible {
   gap: 10px;
 }
 
-.mode-switch {
-  gap: 2px;
-  padding: 3px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--surface);
-}
-
-.mode-button,
 .refresh-button {
   gap: 7px;
   min-height: 34px;
-  border: 0;
+  padding: 0 13px;
+  border: 1px solid var(--line-strong);
   border-radius: 7px;
-  color: var(--text-muted);
-  background: transparent;
+  background: var(--surface-strong);
+  color: var(--text);
   cursor: pointer;
   font-size: 12px;
   font-weight: 700;
   transition: transform 150ms ease, background-color 150ms ease, color 150ms ease;
 }
 
-.mode-button {
-  padding: 0 10px;
-}
-
-.mode-button.active {
-  background: var(--surface-strong);
-  color: var(--text);
-  box-shadow: 0 1px 3px color-mix(in srgb, var(--text) 9%, transparent);
-}
-
-.refresh-button {
-  padding: 0 13px;
-  border: 1px solid var(--line-strong);
-  background: var(--surface-strong);
-  color: var(--text);
-}
-
-.mode-button:active,
 .refresh-button:active {
   transform: translateY(1px);
 }
@@ -780,10 +752,6 @@ button:focus-visible {
   .brand-name {
     max-width: 100px;
     line-height: 1.2;
-  }
-
-  .mode-button {
-    padding: 0 8px;
   }
 
   .overview-strip {

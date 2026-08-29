@@ -1,19 +1,15 @@
-import { sampleDashboard } from "../data/sampleDashboard";
-import type { DashboardData, DataMode } from "../types";
+import type { DashboardData } from "../types";
 
 
 export async function getDashboard(
-  mode: DataMode,
   signal?: AbortSignal,
 ): Promise<DashboardData> {
-  if (mode === "sample") {
-    return sampleDashboard;
-  }
-
-  const response = await fetch(`/api/dashboard?mode=${mode}`, { signal });
+  const response = await fetch("/api/dashboard", { signal });
 
   if (!response.ok) {
-    throw new Error("Live data is unavailable. Switch back to sample data and try again later.");
+    throw new Error(
+      "Live data could not be loaded. The Python API or an outside data provider may be unavailable.",
+    );
   }
 
   return response.json() as Promise<DashboardData>;

@@ -15,8 +15,8 @@ This matters because outside APIs change. When Kalshi changes a field name, the 
 
 ## Request flow
 
-1. React asks `GET /api/dashboard?mode=sample` or `mode=live`.
-2. `DashboardService` picks sample data or calls the three public clients.
+1. React asks `GET /api/dashboard`.
+2. `DashboardService` calls the three public clients. There is no fallback to invented data.
 3. The probability service chooses NBM percentiles or the mature KNYC history.
 4. `score_markets` gives every contract a model probability and estimated edge.
 5. FastAPI converts the dataclasses into JSON.
@@ -37,7 +37,7 @@ The projected high is the larger of:
 
 The starting distribution comes from NOAA's NBM 01 UTC probabilistic bulletin for KNYC. The code connects the published 10th, 25th, 50th, 75th, and 90th maximum-temperature percentiles with straight lines. No normal-distribution shape is imposed.
 
-Live mode stores the NBM median and later fills in the final KNYC high. After 30 completed days, the app shifts the current forecast by each real historical error and counts how many shifted outcomes fall in each market range. The forecast is fixed at 01 UTC so days are comparable.
+Each live request stores the NBM median and later fills in the final KNYC high. After 30 completed days, the app shifts the current forecast by each real historical error and counts how many shifted outcomes fall in each market range. The forecast is fixed at 01 UTC so days are comparable.
 
 If today's observed KNYC high already exceeds part of the distribution, impossible lower outcomes are removed and the remaining probabilities are rescaled.
 

@@ -36,7 +36,7 @@ cd frontend && npm run dev
 - Explain new ideas from first principles in comments and documentation.
 - Keep the application read-only. It must not authenticate to Kalshi or place orders.
 - Keep secrets, private keys, `.env`, build output, and dependencies out of git.
-- Preserve sample mode so the UI works without credentials or live services.
+- Keep the app live-data only. Do not add invented fallback data when a provider fails.
 
 ## When changing external data clients
 
@@ -62,7 +62,7 @@ cd frontend && npm run dev
 
 ## When changing the interface
 
-- Preserve loading, empty, error, sample, and live states.
+- Preserve loading, empty, error, and live-data states.
 - Keep keyboard focus visible and text contrast readable.
 - Make every multi-column layout collapse cleanly below 768px.
 - Use one accent color and the existing radius scale.

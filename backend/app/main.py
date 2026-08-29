@@ -1,7 +1,6 @@
 from dataclasses import asdict
-from typing import Literal
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import load_settings
@@ -30,13 +29,11 @@ def health() -> dict[str, str]:
 
 
 @app.get("/api/dashboard")
-def dashboard(
-    mode: Literal["sample", "live"] = Query(default="sample"),
-) -> dict:
+def dashboard() -> dict:
     try:
-        return asdict(service.build(mode))
+        return asdict(service.build())
     except Exception as error:
         raise HTTPException(
             status_code=502,
-            detail="The live data providers could not be reached. Try sample mode.",
+            detail="The live data providers could not be reached. Try again later.",
         ) from error

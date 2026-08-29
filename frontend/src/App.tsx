@@ -8,11 +8,10 @@ import { RecommendationPanel } from "./components/RecommendationPanel";
 import { TopBar } from "./components/TopBar";
 import { getDashboard } from "./lib/dashboardApi";
 import { formatRefreshTime } from "./lib/format";
-import type { DashboardData, DataMode } from "./types";
+import type { DashboardData } from "./types";
 
 
 function App() {
-  const [mode, setMode] = useState<DataMode>("sample");
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -23,7 +22,7 @@ function App() {
     setError(null);
 
     try {
-      const nextDashboard = await getDashboard(mode, signal);
+      const nextDashboard = await getDashboard(signal);
       setDashboard(nextDashboard);
     } catch (requestError) {
       if (requestError instanceof DOMException && requestError.name === "AbortError") {
@@ -37,21 +36,13 @@ function App() {
     } finally {
       setIsLoading(false);
     }
-  }, [mode]);
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
     void loadDashboard(controller.signal);
     return () => controller.abort();
   }, [loadDashboard, refreshKey]);
-
-  function changeMode(nextMode: DataMode) {
-    if (nextMode === mode) {
-      return;
-    }
-
-    setMode(nextMode);
-  }
 
   function refresh() {
     setRefreshKey((current) => current + 1);
@@ -60,13 +51,21 @@ function App() {
   return (
     <div className="app-frame">
       <TopBar
-        mode={mode}
         isLoading={isLoading}
-        onModeChange={changeMode}
         onRefresh={refresh}
       />
 
       {isLoading && !dashboard ? <LoadingDashboard /> : null}
+
+      {error && !dashboard ? (
+        <main className="dashboard-shell">
+          <div className="error-banner" role="alert">
+            <WarningCircle size={19} weight="fill" />
+            <span>{error}</span>
+            <button type="button" onClick={refresh}>Retry live data</button>
+          </div>
+        </main>
+      ) : null}
 
       {dashboard ? (
         <main className="dashboard-shell">
@@ -74,7 +73,7 @@ function App() {
             <div className="error-banner" role="alert">
               <WarningCircle size={19} weight="fill" />
               <span>{error}</span>
-              <button type="button" onClick={() => setMode("sample")}>Use sample data</button>
+              <button type="button" onClick={refresh}>Retry live data</button>
             </div>
           ) : null}
 

@@ -1,5 +1,3 @@
-export type DataMode = "sample" | "live";
-
 export interface HourlyTemperature {
   time: string;
   temperature: number;
@@ -48,7 +46,7 @@ export interface ModelSummary {
 }
 
 export interface DashboardData {
-  source: DataMode;
+  source: "live";
   generated_at: string;
   notice: string;
   weather: WeatherSnapshot;

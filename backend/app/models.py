@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime
+from typing import Literal
 
 
 @dataclass(frozen=True)
@@ -70,7 +71,7 @@ class ModelSummary:
 
 @dataclass(frozen=True)
 class DashboardData:
-    source: str
+    source: Literal["live"]
     generated_at: datetime
     notice: str
     weather: WeatherSnapshot

@@ -7,7 +7,6 @@ from app.clients.nbm import NbmClient, NbmTemperatureGuidance
 from app.clients.nws import NwsClient
 from app.config import Settings
 from app.models import DashboardData
-from app.sample_data import sample_markets, sample_weather
 from app.services.history import ForecastHistory
 from app.services.probability import choose_probability_model
 from app.services.recommendation import score_markets
@@ -29,10 +28,7 @@ class DashboardService:
         self.history = ForecastHistory(settings.history_path)
         self.guidance_cache: dict[date, NbmTemperatureGuidance] = {}
 
-    def build(self, mode: str) -> DashboardData:
-        if mode == "sample":
-            return self._build_sample()
-
+    def build(self) -> DashboardData:
         timezone = ZoneInfo("America/New_York")
         target_date = datetime.now(timezone).date()
         nws = NwsClient(self.settings, self.http)
@@ -67,35 +63,6 @@ class DashboardService:
             model=model_summary,
             recommendation=recommendation,
             markets=scored_markets,
-        )
-
-    def _build_sample(self) -> DashboardData:
-        weather = sample_weather()
-        guidance = NbmTemperatureGuidance(
-            target_date=datetime.now().astimezone().date(),
-            issued_at=datetime.now().astimezone(),
-            percentiles={10: 69, 25: 71, 50: 74, 75: 76, 90: 79},
-        )
-        probability_model, model_summary = choose_probability_model(
-            guidance=guidance,
-            historical_errors=[],
-            observed_high=weather.observed_high,
-            minimum_calibration_days=self.settings.minimum_calibration_days,
-        )
-        markets, recommendation = score_markets(
-            sample_markets(),
-            probability_model,
-            weather.projected_high,
-        )
-
-        return DashboardData(
-            source="sample",
-            generated_at=datetime.now().astimezone(),
-            notice=EDUCATIONAL_NOTICE,
-            weather=weather,
-            model=model_summary,
-            recommendation=recommendation,
-            markets=markets,
         )
 
     def _resolve_past_outcomes(
