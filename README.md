@@ -74,23 +74,3 @@ frontend/src/lib/         fetching and formatting helpers
 frontend/src/types.ts      the browser's copy of the API shape
 docs/                     architecture and AI context
 ```
-
-## What changed from the original script
-
-- Removed the private-key requirement from the read-only path.
-- Replaced one long command-line flow with small modules that each have one job.
-- Removed the duplicate `Market` class.
-- Added request timeouts and proper HTTP error handling.
-- Switched to Kalshi's current `external-api.kalshi.com` endpoint and dollar price fields.
-- Added a deterministic scoring step that can be tested without an AI model.
-- Added loading, empty, error, live, and sample states to the React screen.
-- Added clear safety boundaries: this repository never places trades.
-
-## Important limits
-
-- A positive edge is only a rough estimate, not proof that a trade is good.
-- Fees, slippage, order-book depth, forecast revisions, and market settlement details are not modeled.
-- The contract parser prefers structured strike fields and falls back to reading the market title. New contract formats need tests.
-- Live mode depends on two outside services, so it can fail even when this code is working.
-
-For the reasoning behind the boundaries, read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). For future AI work, read [docs/AI_CONTEXT.md](docs/AI_CONTEXT.md).
