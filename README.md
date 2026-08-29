@@ -17,7 +17,7 @@ NWS weather + Kalshi prices -> Python scoring service -> React dashboard
 - The scoring service estimates a rough probability for each temperature range.
 - The React app turns that one JSON response into a readable screen.
 
-The score is intentionally simple. It assumes the final temperature is shaped like a bell curve around the projected high, with 2.25°F of uncertainty. That is useful for learning and UI development, but it is not a proven trading strategy.
+The score is intentionally simple. It assumes the final temperature is shaped like a bell curve around the projected high, with 2.25°F of uncertainty. 
 
 ## Run the dashboard
 
