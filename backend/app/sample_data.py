@@ -30,10 +30,10 @@ def sample_weather() -> WeatherSnapshot:
 def sample_markets() -> list[Market]:
     values = [
         ("KXHIGHNY-SAMPLE-B70", "69°F or below", None, 69, 0.05, 0.07, 0.95, 288),
-        ("KXHIGHNY-SAMPLE-B72", "70-72°F", 70, 72, 0.18, 0.21, 0.82, 613),
-        ("KXHIGHNY-SAMPLE-B74", "73-75°F", 73, 75, 0.39, 0.43, 0.61, 1248),
+        ("KXHIGHNY-SAMPLE-B72", "70-72°F", 70, 72, 0.16, 0.18, 0.84, 613),
+        ("KXHIGHNY-SAMPLE-B74", "73-75°F", 73, 75, 0.28, 0.30, 0.72, 1248),
         ("KXHIGHNY-SAMPLE-B77", "76-78°F", 76, 78, 0.19, 0.23, 0.80, 851),
-        ("KXHIGHNY-SAMPLE-T79", "79°F or above", 79, None, 0.06, 0.09, 0.94, 340),
+        ("KXHIGHNY-SAMPLE-T79", "79°F or above", 79, None, 0.28, 0.30, 0.72, 340),
     ]
 
     return [

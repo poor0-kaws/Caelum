@@ -16,10 +16,11 @@ This matters because outside APIs change. When Kalshi changes a field name, the 
 ## Request flow
 
 1. React asks `GET /api/dashboard?mode=sample` or `mode=live`.
-2. `DashboardService` picks sample data or calls the two public clients.
-3. `score_markets` gives every contract a model probability and estimated edge.
-4. FastAPI converts the dataclasses into JSON.
-5. React renders the overview, chart, recommendation, and market table.
+2. `DashboardService` picks sample data or calls the three public clients.
+3. The probability service chooses NBM percentiles or the mature KNYC history.
+4. `score_markets` gives every contract a model probability and estimated edge.
+5. FastAPI converts the dataclasses into JSON.
+6. React renders the overview, chart, recommendation, and market table.
 
 ## Safety boundary
 
@@ -27,14 +28,20 @@ The backend has no authenticated Kalshi client and no order route. That is inten
 
 Adding order placement would be a different product with different risks. It would need authentication, position limits, idempotency, audit logs, confirmation screens, and much stronger testing. Do not slip that work into the read-only client.
 
-## Scoring model
+## Probability and scoring
 
 The projected high is the larger of:
 
 - today's observed KNYC high;
 - today's NWS daytime forecast high.
 
-The model treats the final high as a normal distribution centered on that number. The standard deviation is `2.25°F`. For each Kalshi range:
+The starting distribution comes from NOAA's NBM 01 UTC probabilistic bulletin for KNYC. The code connects the published 10th, 25th, 50th, 75th, and 90th maximum-temperature percentiles with straight lines. No normal-distribution shape is imposed.
+
+Live mode stores the NBM median and later fills in the final KNYC high. After 30 completed days, the app shifts the current forecast by each real historical error and counts how many shifted outcomes fall in each market range. The forecast is fixed at 01 UTC so days are comparable.
+
+If today's observed KNYC high already exceeds part of the distribution, impossible lower outcomes are removed and the remaining probabilities are rescaled.
+
+For each Kalshi range:
 
 ```text
 modeled edge = model probability - current YES ask
@@ -42,7 +49,7 @@ modeled edge = model probability - current YES ask
 
 The result says `WAIT` when the best modeled edge is below 3 cents.
 
-These numbers are transparent constants in `backend/app/services/recommendation.py`. They are learning defaults, not fitted parameters.
+The 3-cent trade threshold remains a transparent learning default. It is not fitted or backtested.
 
 ## Data contracts
 

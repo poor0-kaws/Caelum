@@ -7,7 +7,9 @@ Read this file when changing the recommendation logic, adding an LLM, or asking 
 - Observed temperatures come from NWS station `KNYC` in Central Park.
 - Forecast temperatures come from the NWS point endpoint for the configured NYC coordinates.
 - Prices come from Kalshi's public market endpoint.
-- The existing score is a simple normal-distribution estimate. It is not trained, backtested, or calibrated.
+- The initial distribution comes from NOAA NBM maximum-temperature percentiles.
+- After 30 completed days, the app uses real KNYC forecast errors without assuming a distribution shape.
+- The local model is not backtested merely because it has collected 30 days.
 - The application is read-only and cannot place trades.
 
 ## If an LLM is added later
@@ -20,6 +22,7 @@ Give the model one structured input containing:
 - the exact forecast timestamp and values;
 - each market ticker, range, bid, ask, and model probability;
 - the fixed scoring assumptions;
+- the active probability source and completed calibration-day count;
 - the limitations listed below.
 
 Require structured output with these fields:
@@ -40,7 +43,7 @@ Reject the answer if it names a ticker, price, temperature, or probability that 
 - The model does not include fees or slippage.
 - It does not use the full order book.
 - It does not account for settlement-rule details.
-- It does not measure forecast bias by season or time of day.
+- Thirty days is too small to separate forecast bias by season or weather regime.
 - It has not been backtested.
 
 The UI must call the output an educational signal, not a guaranteed opportunity.

@@ -1,15 +1,19 @@
 import { Info, TrendUp } from "@phosphor-icons/react";
 
 import { formatEdge } from "../lib/format";
-import type { Recommendation } from "../types";
+import type { ModelSummary, Recommendation } from "../types";
 
 
 interface RecommendationPanelProps {
   recommendation: Recommendation;
+  model: ModelSummary;
 }
 
 
-export function RecommendationPanel({ recommendation }: RecommendationPanelProps) {
+export function RecommendationPanel({
+  recommendation,
+  model,
+}: RecommendationPanelProps) {
   const actionClass = recommendation.action === "WAIT" ? "wait" : "trade";
 
   return (
@@ -40,8 +44,20 @@ export function RecommendationPanel({ recommendation }: RecommendationPanelProps
 
       <div className="model-note">
         <Info size={16} weight="fill" />
-        <span>Uses a simple normal distribution with 2.25°F forecast uncertainty.</span>
+        <span>{modelDescription(model)}</span>
       </div>
     </section>
+  );
+}
+
+
+function modelDescription(model: ModelSummary): string {
+  if (model.source === "knyc_error_history") {
+    return `Uses ${model.completed_days} completed KNYC forecast-error days.`;
+  }
+
+  return (
+    `Uses NOAA NBM percentiles while KNYC calibration builds `
+    + `(${model.completed_days}/${model.required_days} completed days).`
   );
 }

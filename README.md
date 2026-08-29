@@ -9,15 +9,21 @@ It starts in sample mode, so you can see the complete interface without keys or 
 Think of the app as three simple boxes connected in a row:
 
 ```text
-NWS weather + Kalshi prices -> Python scoring service -> React dashboard
+NWS weather + NBM probabilities + Kalshi prices -> scoring service -> React
 ```
 
 - The NWS client gets observed temperatures and the forecast.
+- The NBM client gets calibrated maximum-temperature percentiles.
 - The Kalshi client gets open NYC temperature contracts and their prices.
 - The scoring service estimates a rough probability for each temperature range.
 - The React app turns that one JSON response into a readable screen.
 
-The score is intentionally simple. It assumes the final temperature is shaped like a bell curve around the projected high, with 2.25°F of uncertainty. 
+The probability model has two stages:
+
+1. It starts with NOAA NBM maximum-temperature percentiles. The code draws straight lines between the published 10th, 25th, 50th, 75th, and 90th percentiles. It does not assume a bell curve.
+2. It records one consistent KNYC forecast and the final observed high each day. After 30 completed days, those real local forecast errors become the probability distribution.
+
+The model also removes outcomes below a high temperature that has already been observed. This is more honest than a fixed uncertainty number, but it is still not a proven trading strategy.
 
 ## Run the dashboard
 
@@ -68,6 +74,7 @@ npm run build
 backend/app/clients/       fetch and parse outside data
 backend/app/services/      combine data and calculate the signal
 backend/app/models.py      shared Python data shapes
+backend/data/              local calibration ledger documentation
 backend/app/main.py        small HTTP boundary
 frontend/src/components/  focused React screen pieces
 frontend/src/lib/         fetching and formatting helpers

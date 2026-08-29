@@ -39,11 +39,20 @@ export interface ScoredMarket {
   status: string;
 }
 
+export interface ModelSummary {
+  source: "nbm_percentiles" | "knyc_error_history";
+  label: string;
+  completed_days: number;
+  required_days: number;
+  as_of: string;
+}
+
 export interface DashboardData {
   source: DataMode;
   generated_at: string;
   notice: string;
   weather: WeatherSnapshot;
+  model: ModelSummary;
   recommendation: Recommendation;
   markets: ScoredMarket[];
 }

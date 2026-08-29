@@ -60,10 +60,20 @@ class Recommendation:
 
 
 @dataclass(frozen=True)
+class ModelSummary:
+    source: str
+    label: str
+    completed_days: int
+    required_days: int
+    as_of: str
+
+
+@dataclass(frozen=True)
 class DashboardData:
     source: str
     generated_at: datetime
     notice: str
     weather: WeatherSnapshot
+    model: ModelSummary
     recommendation: Recommendation
     markets: list[ScoredMarket]

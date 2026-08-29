@@ -124,7 +124,10 @@ function App() {
               <ForecastChart points={dashboard.weather.hourly} />
             </section>
 
-            <RecommendationPanel recommendation={dashboard.recommendation} />
+            <RecommendationPanel
+              recommendation={dashboard.recommendation}
+              model={dashboard.model}
+            />
           </div>
 
           <section className="markets-panel" aria-labelledby="markets-title">
@@ -140,7 +143,7 @@ function App() {
 
           <footer className="dashboard-footer">
             <p>{dashboard.notice}</p>
-            <p>Weather: NWS and KNYC. Market prices: Kalshi public API.</p>
+            <p>Weather: NWS and KNYC. Probability: NOAA NBM. Prices: Kalshi.</p>
           </footer>
         </main>
       ) : null}

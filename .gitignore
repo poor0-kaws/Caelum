@@ -4,6 +4,8 @@
 
 # Python
 .venv/
+backend/data/knyc_forecast_history.json
+backend/data/*.tmp
 __pycache__/
 *.pyc
 .pytest_cache/

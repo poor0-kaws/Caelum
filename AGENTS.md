@@ -6,6 +6,7 @@ This is a read-only NYC weather-market dashboard built with FastAPI, React, and 
 
 - `backend/app/clients/`: external NWS and Kalshi parsing
 - `backend/app/services/`: dashboard assembly and recommendation math
+- `backend/data/`: documentation for the ignored local calibration ledger
 - `backend/app/models.py`: backend data contracts
 - `frontend/src/components/`: focused UI components
 - `frontend/src/types.ts`: browser copy of the API contract
@@ -48,6 +49,9 @@ cd frontend && npm run dev
 
 - Read `docs/AI_CONTEXT.md` first.
 - Keep assumptions visible as named constants.
+- Preserve the fixed 01 UTC forecast issue time so historical errors remain comparable.
+- Keep NBM percentiles as the fallback until enough real KNYC outcomes exist.
+- Never seed the calibration ledger with invented rows.
 - Return `WAIT` when the data is empty or the signal is weaker than the threshold.
 - Describe the result as educational and uncalibrated until backtests prove otherwise.
 

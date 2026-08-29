@@ -1,5 +1,6 @@
-from datetime import datetime
+from datetime import date, datetime, time, timedelta
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from app.clients.http import JsonHttpClient
 from app.config import Settings
@@ -41,6 +42,12 @@ class NwsClient:
             hourly=timeline,
         )
 
+    def get_observed_high(self, target_date: date) -> int | None:
+        """Return the final KNYC high for a past local calendar day."""
+        observations = self._get_observations_for_date(target_date)
+        temperatures = [item.temperature for item in observations]
+        return max(temperatures, default=None)
+
     def _get_point_metadata(self) -> dict[str, Any]:
         url = (
             "https://api.weather.gov/points/"
@@ -49,12 +56,28 @@ class NwsClient:
         return self.http.get(url)
 
     def _get_today_observations(self) -> list[HourlyTemperature]:
+        today = datetime.now(ZoneInfo("America/New_York")).date()
+        return self._get_observations_for_date(today)
+
+    def _get_observations_for_date(
+        self,
+        target_date: date,
+    ) -> list[HourlyTemperature]:
         url = (
             "https://api.weather.gov/stations/"
             f"{self.settings.station_id}/observations"
         )
-        data = self.http.get(url, params={"limit": 48})
-        today = datetime.now().astimezone().date()
+        timezone = ZoneInfo("America/New_York")
+        start = datetime.combine(target_date, time.min, timezone)
+        end = start + timedelta(days=1)
+        data = self.http.get(
+            url,
+            params={
+                "start": start.isoformat(),
+                "end": end.isoformat(),
+                "limit": 500,
+            },
+        )
         observations: list[HourlyTemperature] = []
 
         for feature in data.get("features", []):
@@ -65,8 +88,8 @@ class NwsClient:
             if timestamp is None or celsius is None:
                 continue
 
-            local_time = timestamp.astimezone()
-            if local_time.date() != today:
+            local_time = timestamp.astimezone(timezone)
+            if local_time.date() != target_date:
                 continue
 
             observations.append(
@@ -96,14 +119,15 @@ class NwsClient:
     ) -> list[HourlyTemperature]:
         timeline = observations[-6:]
         seen_times = {item.time for item in timeline}
-        today = datetime.now().astimezone().date()
+        timezone = ZoneInfo("America/New_York")
+        today = datetime.now(timezone).date()
 
         for period in hourly_data.get("properties", {}).get("periods", []):
             timestamp = _parse_time(period.get("startTime"))
             if timestamp is None:
                 continue
 
-            local_time = timestamp.astimezone()
+            local_time = timestamp.astimezone(timezone)
             if local_time.date() != today:
                 continue
 

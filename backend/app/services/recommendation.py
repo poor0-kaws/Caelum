@@ -1,17 +1,16 @@
-from math import erf, sqrt
-
 from app.models import Market, Recommendation, ScoredMarket
+from app.services.probability import TemperatureProbabilityModel
 
 
 MINIMUM_EDGE = 0.03
-FORECAST_UNCERTAINTY_DEGREES = 2.25
 
 
 def score_markets(
     markets: list[Market],
+    model: TemperatureProbabilityModel,
     projected_high: int,
 ) -> tuple[list[ScoredMarket], Recommendation]:
-    scored = [_score_market(market, projected_high) for market in markets]
+    scored = [_score_market(market, model) for market in markets]
     scored.sort(key=lambda market: market.edge, reverse=True)
 
     if not scored:
@@ -20,7 +19,7 @@ def score_markets(
     best = scored[0]
     action = "BUY YES" if best.edge >= MINIMUM_EDGE else "WAIT"
     confidence = _confidence_from_edge(best.edge)
-    reasoning = _build_reasoning(best, projected_high, action)
+    reasoning = _build_reasoning(best, projected_high, action, model.label)
 
     recommendation = Recommendation(
         ticker=best.ticker,
@@ -33,9 +32,11 @@ def score_markets(
     return scored, recommendation
 
 
-def _score_market(market: Market, projected_high: int) -> ScoredMarket:
-    probability = _range_probability(
-        projected_high,
+def _score_market(
+    market: Market,
+    model: TemperatureProbabilityModel,
+) -> ScoredMarket:
+    probability = model.range_probability(
         market.minimum_temperature,
         market.maximum_temperature,
     )
@@ -55,32 +56,6 @@ def _score_market(market: Market, projected_high: int) -> ScoredMarket:
     )
 
 
-def _range_probability(
-    projected_high: int,
-    minimum: int | None,
-    maximum: int | None,
-) -> float:
-    if minimum is None and maximum is None:
-        return 0.0
-
-    lower = float("-inf") if minimum is None else minimum - 0.5
-    upper = float("inf") if maximum is None else maximum + 0.5
-    upper_probability = _normal_cdf(upper, projected_high, FORECAST_UNCERTAINTY_DEGREES)
-    lower_probability = _normal_cdf(lower, projected_high, FORECAST_UNCERTAINTY_DEGREES)
-    return max(0.0, min(1.0, upper_probability - lower_probability))
-
-
-def _normal_cdf(value: float, mean: float, standard_deviation: float) -> float:
-    if value == float("inf"):
-        return 1.0
-
-    if value == float("-inf"):
-        return 0.0
-
-    z_score = (value - mean) / (standard_deviation * sqrt(2))
-    return 0.5 * (1 + erf(z_score))
-
-
 def _confidence_from_edge(edge: float) -> int:
     bounded_edge = max(0.0, min(edge, 0.25))
     return round(50 + (bounded_edge / 0.25) * 40)
@@ -90,6 +65,7 @@ def _build_reasoning(
     market: ScoredMarket,
     projected_high: int,
     action: str,
+    model_label: str,
 ) -> str:
     model_percent = round(market.model_probability * 100)
     ask_percent = round(market.yes_ask * 100)
@@ -98,13 +74,13 @@ def _build_reasoning(
         return (
             f"The strongest contract is {market.range_label}, but its modeled edge is below "
             f"the {round(MINIMUM_EDGE * 100)} cent watch threshold. The projected high is "
-            f"{projected_high}°F. Waiting avoids forcing a weak trade."
+            f"{projected_high}°F. {model_label} does not show a strong enough advantage."
         )
 
     return (
-        f"The projected high is {projected_high}°F. The simple weather model estimates a "
+        f"The projected high is {projected_high}°F. The active probability model estimates a "
         f"{model_percent}% chance for {market.range_label}, compared with a {ask_percent} cent "
-        "YES ask. This is an educational signal, not a calibrated trading model."
+        f"YES ask. The probability source is {model_label}."
     )
 
 
