@@ -1,8 +1,8 @@
-# NYC Weather Market Dashboard
+# Caelum
 
 A small, read-only React dashboard that compares New York City weather data with Kalshi high-temperature contracts.
 
-It starts in sample mode, so you can see the complete interface without keys or network access. Live mode reads public NWS and Kalshi endpoints. It cannot log in, place an order, or move money.
+It starts with Live mode that reads public NWS and Kalshi endpoints. It cannot log in, place an order, or move money.
 
 ## What you are looking at
 
